@@ -12,7 +12,10 @@ int main()
     ajoutMot(nouveau, "will");
     ajoutMot(nouveau, "dartagnan");
     ajoutMot(nouveau, "zorro");
-    ListeMots* liste=suggestionMots(8, nouveau, "da");
+    ListeMots* liste=suggestionMots(2, nouveau, "da");
+    printf(" Liste : \n");
     afficherListe(liste);
+    printf("\n Dictionnaire : \n");
+    afficherDico(nouveau);
     return 0;
 }

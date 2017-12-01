@@ -31,6 +31,7 @@ DicoABR* minimum(DicoABR* dico); //vérifié
 DicoABR* successeur(DicoABR* dico); //vérifié
 DicoABR* supprimeMot(DicoABR* dico, char* valeur);
 
+void copierDictionnaire(DicoABR* dico, DicoABR* copie);
 void afficherListe(ListeMots* liste);
 int taillePrefixeCommun(char* mot1, char* mot2);
 DicoABR* motLePlusProche(DicoABR* dico, char* souschaine);

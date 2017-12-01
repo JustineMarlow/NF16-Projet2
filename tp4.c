@@ -210,8 +210,16 @@ ListeMots* ajoutListe(ListeMots* liste, char* val){
     return liste;
 }
 
+void copierDictionnaire(DicoABR* dico, DicoABR* copie){
+    ajoutMot(copie, dico->valeur);
+    if (dico->gauche!=NULL) copierDictionnaire(dico->gauche, copie);
+    if (dico->droit!=NULL) copierDictionnaire(dico->droit, copie);
+}
+
+
 ListeMots* suggestionMots(int k, DicoABR* dico, char* souschaine){
-    DicoABR* tmp=dico;
+    DicoABR* tmp=initDico();
+    copierDictionnaire(dico, tmp);
     ListeMots* liste=malloc(sizeof(ListeMots));
     if (liste==NULL){
         printf("Erreur lors de l'allocation dynamique \n");
@@ -226,6 +234,7 @@ ListeMots* suggestionMots(int k, DicoABR* dico, char* souschaine){
         liste=ajoutListe(liste, proche->valeur);
         tmp=supprimeMot(tmp, proche->valeur);
     }
+    free(tmp);
     return liste;
 }
 
