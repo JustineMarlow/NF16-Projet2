@@ -39,8 +39,8 @@ void afficherDico(DicoABR* dico){
     else {
         if (strcmp(dico->valeur,"\0")==0) printf("Le dictionnaire est vide \n");
         else {
-        printf("%s \n", dico->valeur);
         if (dico->gauche!=NULL) afficherDico(dico->gauche);
+        printf("%s \n", dico->valeur);
         if (dico->droit!=NULL) afficherDico(dico->droit);
     }
     }
@@ -251,4 +251,135 @@ void afficherListe(ListeMots* liste){
             }
         }
     }
+}
+
+DicoABR* chargement_Dictionnaire_ABR(){
+    FILE* fichier=NULL;
+    fichier=fopen("dictionnaire.txt","r");
+    if (fichier==NULL){
+        printf("Erreur lors de l'ouverture du fichier dictionnaire.txt ! \n");
+        return NULL;
+    }
+    DicoABR* nouveau=initDico();
+    if (nouveau==NULL) return nouveau;
+    char chaine[30]="";
+    while (fgets(chaine, 30, fichier)!=NULL){
+        chaine[strlen(chaine)-1]='\0'; //on enleve le \n final
+        ajoutMot(nouveau, chaine);
+    }
+    fclose(fichier);
+    return nouveau;
+}
+
+DicoABR* verimot(DicoABR* dico){
+    FILE* fichier=NULL;
+    fichier=fopen("file.txt","r");
+    if (fichier==NULL){
+        printf("Erreur lors de l'ouverture du fichier file.txt ! \n");
+        return dico;
+    }
+    FILE* nouveau=NULL;
+    nouveau=fopen("newfile.txt","w+");
+    if (nouveau==NULL){
+        printf("Erreur lors de l'ouverture du fichier newfile.txt ! \n");
+        fclose(fichier);
+        return dico;
+    }
+    char chaine[30]="";
+    DicoABR* mot_tmp;
+    int choix;
+    int k=5;
+    int i;
+    while (fgets(chaine, 30, fichier)!=NULL){
+        chaine[strlen(chaine)-1]='\0'; //on enleve le \n final
+        printf("%s \n", chaine);
+        mot_tmp=rechercheMot(dico, chaine);
+        if (mot_tmp==NULL){//le mot n'existe pas dans le dictionnaire
+            choix=0;
+            while (choix!=1 && choix!=2){
+                printf("Que voulez vous faire ? \n");
+                printf("(1) Remplacer ce mot dans le fichier par un mot choisi du dictionnaire \n");
+                printf("(2) Ajouter le mot dans le dictionnaire \n");
+                scanf("%d",&choix);
+            }
+            if (choix==2){
+                ajoutMot(dico, chaine);
+                fputs(chaine, nouveau);
+                fputs("\n", nouveau);
+            }
+            else {
+                choix=-1;
+                printf("Choisissez un mot parmi cette sélection : \n");
+                ListeMots* liste=suggestionMots(k,dico,chaine);
+                Mot* curseur;
+                while (choix<=0 || choix>liste->taille){
+                    i=1;
+                    curseur=liste->tete;
+                    while (curseur!=NULL){
+                        printf("(%d) %s \n",i,curseur->valeur);
+                        curseur=curseur->suivant;
+                        i++;
+                    }
+                    scanf("%d",&choix);
+                }
+                curseur=liste->tete;
+                for (i=1; i<choix; i++)
+                    curseur=curseur->suivant;
+                printf("%s à corriger en %s \n", chaine, curseur->valeur);
+                fputs(curseur->valeur, nouveau);
+                fputs("\n", nouveau);
+            }
+        }
+        else {
+            fputs(chaine, nouveau);
+            fputs("\n", nouveau);
+        }
+    }
+    fclose(nouveau);
+    fclose(fichier);
+    remove("file.txt");
+    rename("newfile.txt","file.txt");
+    return dico;
+}
+
+void veridico(DicoABR* dico){
+    if (dico==NULL) {
+        printf("Erreur, le dictionnaire n'existe pas \n");
+    }
+    else {
+        if (dico->gauche!=NULL) veridico(dico->gauche);
+        int choix=0;
+        while (choix!=1 && choix!=2 && choix!=3){
+            printf("%s \n", dico->valeur);
+            printf("Veuillez choisir l'action à effectuer : \n");
+            printf("(1) Corriger ce mot \n");
+            printf("(2) Supprimer ce mot \n");
+            printf("(3) Valider ce mot \n");
+            scanf("%d", &choix);
+        }
+        if (choix==1){
+            char chaine[30];
+            printf("Entrer la correction du mot \n");
+            scanf("%s",&chaine);
+            ajoutMot(dico, chaine);
+            dico=supprimeMot(dico, dico->valeur);
+        }
+        else if (choix==2) dico=supprimeMot(dico, dico->valeur);
+        if (dico->droit!=NULL) veridico(dico->droit);
+    }
+}
+
+void enregistrement_Dictionnaire_ABR(DicoABR* dico){
+    FILE* fichier=NULL;
+    fichier=fopen("dictionnaire.txt","w+");
+    if (fichier==NULL){
+        printf("Erreur lors de l'ouverture du fichier dictionnaire.txt ! \n");
+        return NULL;
+    }
+    while (strcmp(dico->valeur, "\0")!=0){
+        fputs(dico->valeur, fichier);
+        fputs("\n", fichier);
+        dico=supprimeMot(dico, dico->valeur);
+    }
+    fclose(fichier);
 }

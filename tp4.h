@@ -38,5 +38,9 @@ DicoABR* motLePlusProche(DicoABR* dico, char* souschaine);
 ListeMots* ajoutListe(ListeMots* liste, char* val);
 ListeMots* suggestionMots(int k, DicoABR* dico, char* souschaine);
 
+DicoABR* chargement_Dictionnaire_ABR();
+DicoABR* verimot(DicoABR* dico);
+void veridico(DicoABR* dico);
+void enregistrement_Dictionnaire_ABR(DicoABR* dico);
 
 #endif // TP4_H_INCLUDED
