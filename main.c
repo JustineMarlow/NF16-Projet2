@@ -24,26 +24,13 @@ int main()
 
         switch(choix){
         case 1: printf("Vous avez choisi la fonction print. \n");
-                choix=0;
-                while(choix!=1 && choix!=2){
-                    printf("Voulez vous afficher l'ensemble du dictionnaire (1) ou une partie seulement (2) ? \n");
-                    scanf("%d",&choix);
-                }
-                if (choix==1){
-                    printf("Le dictionnaire en totalité : \n");
-                    afficherDico(dico);
-                }
-                else {
-                    printf("Le dictionnaire en partie : \n");
-                    //a faire
-                }
-                choix=1;
+                print(dico);
                 break;
         case 2: printf("Vous avez choisi la fonction verimot. \n");
                 dico=verimot(dico);
                 break;
         case 3: printf("Vous avez choisi la fonction veridico. \n");
-                veridico(dico);
+                dico=veridico(dico);
                 break;
         case 0: printf("A bientot ! \n");
                 break;
@@ -53,5 +40,6 @@ int main()
     }
     enregistrement_Dictionnaire_ABR(dico);
     }
+
     return 0;
 }

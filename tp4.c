@@ -112,13 +112,13 @@ DicoABR* supprimeMot(DicoABR* dico, char* val){
     //Si find n'a pas de fils
     if (find->gauche==NULL && find->droit==NULL){
         if (find->pere==NULL) {strcpy(dico->valeur, "\0"); //s'il s'agit de la racine
-                         return dico;}
+                               return dico;}
         else {
             if (find->pere->gauche==find) find->pere->gauche=NULL;
             else find->pere->droit=NULL;
-        free(find);
+            free(find);
+            return dico;
         }
-        return dico;
     }
     //Si find a un seul fils gauche
     if (find->gauche!=NULL && find->droit==NULL){
@@ -151,18 +151,10 @@ DicoABR* supprimeMot(DicoABR* dico, char* val){
     //Si find a deux fils
     DicoABR* remplace=successeur(find);
     strcpy(find->valeur,remplace->valeur);
-    supprimeMot(remplace, remplace->valeur);
+    remplace=supprimeMot(remplace, remplace->valeur);
     return dico;
 };
 
-/*
-Implémenter et tester une fonction suggestionMots; suggestionMots prend en entrées: k un
-entier positif, dico un dictionnaire et souschaine une chaîne de caractères. La fonction
-retourne les k mots plus proches de souschaine se trouvant dans dico.
-Soient deux mots x et y qui commencent respectivement par les n1 et n2 premières lettres de
-souschaine. x est plus proche de souschaine que y si n1>n2 ou bien n1=n2 et x est plus petit
-que y dans l’ordre lexicographique.
-*/
 int taillePrefixeCommun(char* mot1, char* mot2){
     int taille=0;
     while (mot1[taille]==mot2[taille]) taille++;
@@ -271,6 +263,44 @@ DicoABR* chargement_Dictionnaire_ABR(){
     return nouveau;
 }
 
+void print(DicoABR* dico){
+    int choix=0;
+    char chaine[30];
+    int nombre;
+    while(choix!=1 && choix!=2){
+        printf("Voulez vous afficher l'ensemble du dictionnaire (1) ou une partie seulement (2) ? \n");
+        scanf("%d",&choix);
+    }
+    if (choix==1){
+        printf("Le dictionnaire en totalité : \n");
+        afficherDico(dico);
+    }
+    else {
+        ListeMots* liste;
+        nombre=0;
+        while (nombre<=0){
+            printf("Combien de mots voulez vous affichez ? \n");
+            scanf("%d",&nombre);
+        }
+        choix=-1;
+        while (choix!=1 && choix!=2){
+            printf("Voulez vous afficher les %d premiers mots du dictionnaire (1) ou bien les %d mots les plus proches d'une chaine de caracteres (2) ? \n",nombre, nombre);
+            scanf("%d",&choix);
+        }
+        if (choix==1){
+            liste=suggestionMots(nombre, dico, "a");
+            afficherListe(liste);
+        }
+        else{
+            printf("Entrez la chaine de caracteres : \n");
+            scanf("%s",&chaine);
+            liste=suggestionMots(nombre, dico, chaine);
+            afficherListe(liste);
+        }
+        free(liste);
+    }
+}
+
 DicoABR* verimot(DicoABR* dico){
     FILE* fichier=NULL;
     fichier=fopen("file.txt","r");
@@ -287,7 +317,7 @@ DicoABR* verimot(DicoABR* dico){
     }
     char chaine[30]="";
     DicoABR* mot_tmp;
-    int choix;
+    int choix, choix2, mot_choisi;
     int k=5;
     int i;
     while (fgets(chaine, 30, fichier)!=NULL){
@@ -296,23 +326,31 @@ DicoABR* verimot(DicoABR* dico){
         mot_tmp=rechercheMot(dico, chaine);
         if (mot_tmp==NULL){//le mot n'existe pas dans le dictionnaire
             choix=0;
+            choix2=-1;
+        while (choix!=choix2){
+            choix=0;
+            choix2=-1;
             while (choix!=1 && choix!=2){
-                printf("Que voulez vous faire ? \n");
+                printf("Que voulez vous faire du mot %s ? \n", chaine);
                 printf("(1) Remplacer ce mot dans le fichier par un mot choisi du dictionnaire \n");
                 printf("(2) Ajouter le mot dans le dictionnaire \n");
                 scanf("%d",&choix);
             }
             if (choix==2){
+                printf("Vous avez choisi d'ajouter le mot %s dans le dictionnaire, veuillez confirmer l'ajout en saisissant de nouveau (2) \n", chaine);
+                scanf("%d",&choix2);
+                if (choix==choix2){
                 ajoutMot(dico, chaine);
                 fputs(chaine, nouveau);
                 fputs("\n", nouveau);
+                }
             }
             else {
-                choix=-1;
+                mot_choisi=-1;
                 printf("Choisissez un mot parmi cette sélection : \n");
                 ListeMots* liste=suggestionMots(k,dico,chaine);
                 Mot* curseur;
-                while (choix<=0 || choix>liste->taille){
+                while (mot_choisi<=0 || mot_choisi>liste->taille){
                     i=1;
                     curseur=liste->tete;
                     while (curseur!=NULL){
@@ -320,15 +358,19 @@ DicoABR* verimot(DicoABR* dico){
                         curseur=curseur->suivant;
                         i++;
                     }
-                    scanf("%d",&choix);
+                    scanf("%d",&mot_choisi);
                 }
                 curseur=liste->tete;
                 for (i=1; i<choix; i++)
                     curseur=curseur->suivant;
-                printf("%s à corriger en %s \n", chaine, curseur->valeur);
+                printf("Vous avez choisi de corriger %s en %s, veuillez confirmer la correction en saisissant de nouveau (1) \n", chaine, curseur->valeur);
+                scanf("%d",&choix2);
+                if (choix==choix2){
                 fputs(curseur->valeur, nouveau);
                 fputs("\n", nouveau);
+                }
             }
+        }
         }
         else {
             fputs(chaine, nouveau);
@@ -342,30 +384,67 @@ DicoABR* verimot(DicoABR* dico){
     return dico;
 }
 
-void veridico(DicoABR* dico){
+DicoABR* veridico(DicoABR* dico){
     if (dico==NULL) {
         printf("Erreur, le dictionnaire n'existe pas \n");
+        return dico;
     }
     else {
-        if (dico->gauche!=NULL) veridico(dico->gauche);
-        int choix=0;
-        while (choix!=1 && choix!=2 && choix!=3){
-            printf("%s \n", dico->valeur);
-            printf("Veuillez choisir l'action à effectuer : \n");
-            printf("(1) Corriger ce mot \n");
-            printf("(2) Supprimer ce mot \n");
-            printf("(3) Valider ce mot \n");
-            scanf("%d", &choix);
+        ListeMots* liste;
+        int nombre=0;
+        char chaine[30];
+        while (nombre<=0){
+            printf("Combien de mots voulez vous verifier ? \n");
+            scanf("%d",&nombre);
+        }
+        int choix=-1;
+        while (choix!=1 && choix!=2){
+            printf("Voulez vous afficher les %d premiers mots du dictionnaire (1) ou bien les %d mots les plus proches d'une chaine de caracteres (2) ? \n",nombre, nombre);
+            scanf("%d",&choix);
         }
         if (choix==1){
-            char chaine[30];
-            printf("Entrer la correction du mot \n");
-            scanf("%s",&chaine);
-            ajoutMot(dico, chaine);
-            dico=supprimeMot(dico, dico->valeur);
+            liste=suggestionMots(nombre, dico, "a");
         }
-        else if (choix==2) dico=supprimeMot(dico, dico->valeur);
-        if (dico->droit!=NULL) veridico(dico->droit);
+        else{
+            printf("Entrez la chaine de caracteres : \n");
+            scanf("%s",&chaine);
+            liste=suggestionMots(nombre, dico, chaine);
+        }
+        Mot* curseur=liste->tete;
+        DicoABR* tmp=dico;
+        while (curseur!=NULL){
+            choix=0;
+            int choix2=-1;
+            while (choix!=1 && choix!=2 && choix!=3){
+                printf("%s \n", curseur->valeur);
+                printf("Veuillez choisir l'action à effectuer : \n");
+                printf("(1) Corriger ce mot \n");
+                printf("(2) Supprimer ce mot \n");
+                printf("(3) Valider ce mot \n");
+                scanf("%d", &choix);
+            }
+            if (choix==1){
+                char chaine[30];
+                printf("Entrer la correction du mot \n");
+                scanf("%s",&chaine);
+                printf("Vous avez choisi de modifier le mot %s en %s dans le dictionnaire, veuillez confirmer la modification en saisissant à nouveau (1) \n", curseur->valeur, chaine);
+                scanf("%d",&choix2);
+                if (choix==choix2) {
+                ajoutMot(tmp, chaine);
+                tmp=supprimeMot(tmp, curseur->valeur);
+                }
+            }
+            else if (choix==2) {
+                printf("Vous avez choisi de supprimer le mot %s du dictionnaire, veuillez confirmer la suppression en saisissant à nouveau (2) \n", curseur->valeur);
+                scanf("%d",&choix2);
+                if (choix==choix2){
+                tmp=supprimeMot(tmp, curseur->valeur);
+                }
+                }
+            else choix2=choix;
+            if (choix==choix2) curseur=curseur->suivant;
+        }
+    return tmp;
     }
 }
 
