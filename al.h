@@ -15,7 +15,7 @@ typedef struct T_Car{
     struct T_Car *suiv;
 } Car;
 
-typedef Car * Mot;
+typedef Car * Mot2;
 
 typedef struct T_Cel{
     char c;
@@ -23,34 +23,48 @@ typedef struct T_Cel{
     struct T_Cel * alt;
 } Cellule;
 
-typedef Cellule* Dico ;
+typedef Cellule* DicoAL ;
 
-Mot creerMot(char* s);
+Mot2 creerMot2(char* s);
 
-Dico initDico2(Dico dico, Mot mot);
+DicoAL initDicoAL(DicoAL dico, Mot2 mot);
 
-Dico prefixeMot(Dico dico, Mot mot);
+DicoAL prefixeMot2(DicoAL dico, Mot2 mot);
 
-int rechercheMot2(Mot mot, Dico dico);
+int rechercheMot2(Mot2 mot, DicoAL dico);
 
-Dico ajoutMot2(Mot mot, Dico dico);
+DicoAL ajoutMot2(Mot2 mot, DicoAL dico);
 
-void afficherMot(Mot mot);
+void afficherMot2(Mot2 mot);
 
-void afficherDico (Dico dico, Mot mot, Car* last);
+void afficherDicoAL(DicoAL dico, Mot2 mot, Car* last);
 
-Dico supprimmeMot2(Dico dico, Mot mot);
+DicoAL supprimmeMot2(DicoAL dico, Mot2 mot);
 
-void copieMot(Mot mot, Mot* copie);
+void copieMot2(Mot2 mot, Mot2* copie);
 
-Dico copieDico(Dico dico);
+DicoAL copieDicoAL(DicoAL dico);
 
-void append(Mot mot, Car* car);
+void append(Mot2 mot, Car* car);
 
-Mot closest(Dico dico, Mot mot);
+Mot2 closest(DicoAL dico, Mot2 mot);
 
-Mot shortest(Dico dico, Mot prev);
+Mot2 shortest(DicoAL dico, Mot2 prev);
 
-Mot* suggestionMot2(int k, Dico dico, Mot souschaine);
+char* toString(Mot2 mot);
+
+Mot2* suggestionMot2(int k, DicoAL dico, Mot2 souschaine);
+
+DicoAL chargement_Dictionnaire_AL();
+
+void print2(DicoAL dico);
+
+DicoAL verimot2(DicoAL dico);
+
+DicoAL veridico2(DicoAL dico);
+
+void enregistrement_Dictionnaire_AL(DicoAL dico);
+
+
 
 #endif /* al_h */
