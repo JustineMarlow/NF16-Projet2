@@ -279,6 +279,9 @@ void copieMot2(Mot2 mot, Mot2* copie){
     Mot2 m = mot;
     while(m != NULL) {
         Car* newCar = malloc(sizeof(Car));
+        //if(newCar == NULL) printf("Probleme malloc dans copieMot2");
+        //printf("m : %c \n", m->c);
+        //fflush(stdout);
         newCar->c = m->c;
         if(mTail == NULL){
             mTail = newCar;
@@ -290,6 +293,7 @@ void copieMot2(Mot2 mot, Mot2* copie){
         }
         m = m->suiv;
     }
+    if(mTail != NULL) mTail->suiv = NULL;
     *copie = mHead;
 }
 
@@ -303,13 +307,16 @@ DicoAL copieDicoAL(DicoAL dico){
     return newCel;
 }
 
-void append(Mot2 mot, Car* car){
-    if(mot != NULL){
-        Mot2 m = mot;
-        while(m->suiv != NULL) m = m->suiv;
+void append(Mot2* mot, Car* car){
+    if(car != NULL) car->suiv = NULL;
+    if(*mot != NULL){
+        Mot2 m = *mot;
+        while(m->suiv != NULL)
+                m = m->suiv;
         m->suiv = car;
+        if(m->suiv != NULL) m->suiv->suiv = NULL;
     }
-    else mot = car;
+    else *mot = car;
 
 }
 
@@ -365,9 +372,13 @@ Mot2 shortest(DicoAL dico, Mot2 prev){
         alt = shortest(dico->alt, tmp1);
     }
     Car* newCar = malloc(sizeof(Car));
+    //printf("dico : %c \n", dico->c);
+    fflush(stdout);
     newCar->c = dico->c;
-    if(prev != NULL) append(prev,newCar);
-    else prev = newCar;
+    newCar->suiv = NULL;
+    append(&prev, newCar);
+    //if(prev != NULL) append(prev,newCar);
+    //else prev = newCar;
     //printf("Prev : ");
     //afficherMot22(prev);
     //printf("\n");
@@ -629,7 +640,7 @@ DicoAL veridico2(DicoAL dico){
                 if (choix==choix2){
                 tmp=supprimmeMot2(tmp,curseur);
                 }
-                }
+            }
             else choix2=choix;
             if (choix==choix2) j++;
         }
