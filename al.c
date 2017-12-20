@@ -30,6 +30,7 @@ Mot2 creerMot2(char* s){
     }
     Car* newCar = malloc(sizeof(Car));
     newCar->c = '$';
+    newCar->suiv = NULL;
     if(m != NULL) m->suiv = newCar;
     else mot = newCar;
     return mot;
@@ -113,7 +114,6 @@ DicoAL ajoutMot2(Mot2 mot, DicoAL dico){
     DicoAL prev = d;
     Mot2 m = mot;
     while(m != NULL){
-
         if(d == NULL || d->c == '\0'){
             DicoAL newCell = malloc(sizeof(Cellule));
             if(newCell == NULL) printf("ERREUR allocation mémoire dans ajoutMot2 \n");
@@ -160,6 +160,14 @@ DicoAL ajoutMot2(Mot2 mot, DicoAL dico){
                 dico = newCell;
                 d = dico;
                 prev = d;
+            }
+            else if(d->c > m->c){
+                DicoAL newCell = malloc(sizeof(Cellule));
+                newCell->c = m->c;
+                prev->succ = newCell;
+                newCell->alt = d;
+                newCell->succ = NULL;
+                d = newCell;
             }
             else{
                 DicoAL newCell = malloc(sizeof(Cellule));
@@ -542,7 +550,9 @@ DicoAL verimot2(DicoAL dico){
                 printf("Vous avez choisi d'ajouter le mot %s dans le dictionnaire, veuillez confirmer l'ajout en saisissant de nouveau (2) \n", chaine);
                 scanf("%d",&choix2);
                 if (choix==choix2){
+                printf("Ajout en cours... \n");
                 ajoutMot2(creerMot2(chaine),dico);
+                printf("Mot ajouté ! \n");
                 fputs(chaine, nouveau);
                 fputs("\n", nouveau);
                 }
